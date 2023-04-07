@@ -2,7 +2,7 @@
 
 namespace WebApi.Models
 {
-    [Table("HISTORIOC_TAREFAS")]
+    [Table("HISTORICO_TAREFAS")]
     public class HistoricoTarefas
     {
         public int ID_HISTORICO_TAREFA { get; set; }
