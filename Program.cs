@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using WebApi.Helpers;
+using WebApi.Helpers.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -64,6 +66,8 @@ builder.Services.AddAuthentication(
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
     });
+
+builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
 
 var app = builder.Build();
 
