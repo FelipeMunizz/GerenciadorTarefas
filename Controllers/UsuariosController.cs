@@ -106,20 +106,4 @@ public class UsuariosController : ControllerBase
             return Ok("Senha alterada com sucesso!");
         }
     }
-
-    [HttpGet("Logout")]
-    public IActionResult Logout()
-    {
-        try
-        {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-
-            return Ok();
-        }
-        catch (Exception)
-        {
-
-            throw;
-        }
-    }
 }
