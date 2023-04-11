@@ -5,7 +5,7 @@ using WebApi.Data;
 
 namespace WebApi.Helpers;
 
-public class SenhaHelpers
+public static class SenhaHelpers
 {
     private static readonly Random random = new Random();
 

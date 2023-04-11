@@ -99,7 +99,7 @@ public class AutorizaController : ControllerBase
     public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaDTO redefinirSenha)
     {
         string novaSenha = "";
-        string query = "select * from USUARIOS where EMAIL = @Email and USUARIO = @Usuario";
+        string query = "select ID_USUARIO from USUARIOS where EMAIL = @Email and USUARIO = @Usuario";
         using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
         {
             SqlCommand command = new SqlCommand(query, connection);

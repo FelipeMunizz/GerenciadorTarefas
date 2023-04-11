@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Net;
 using System.Net.Mail;
-using System.Net;
 using WebApi.Helpers.Interfaces;
 
 namespace WebApi.Helpers
