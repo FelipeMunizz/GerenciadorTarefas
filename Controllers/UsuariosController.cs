@@ -106,4 +106,86 @@ public class UsuariosController : ControllerBase
             return Ok("Senha alterada com sucesso!");
         }
     }
+
+    [HttpPut("AlterarUsuario")]
+    public async Task<ActionResult<UsuarioDTO>> AlterarUsuario([FromBody]UsuarioDTO usuario)
+    {
+        string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
+        using(SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
+        {
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+
+            await connection.OpenAsync();
+            var reader = await command.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                await connection.CloseAsync();
+                return NotFound("Usuario não encontrado");
+            }                
+
+            query = "update USUARIOS set NOME = @Nome, SOBRENOME = @Sobrenome, USUARIO = @Usuario, EMAIL = @Email where ID_USUARIO = @IdUsuario";
+
+            command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@Nome", usuario.Nome);
+            command.Parameters.AddWithValue("@Sobrenome", usuario.Sobrenome);
+            command.Parameters.AddWithValue("@Usuario", usuario.Usuario);
+            command.Parameters.AddWithValue("@Email", usuario.Email);
+            command.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+
+            int result = await command.ExecuteNonQueryAsync();
+
+            if(result < 0)
+            {
+                await connection.CloseAsync();
+                return BadRequest("Não foi possivel atualizar as informações do usuario");
+            }
+
+            await connection.CloseAsync();
+            return Ok(usuario);
+        }
+    }
+
+    [HttpDelete("{id:int}", Name = "DeletarUsuario")]
+    public async Task<IActionResult> DeletarUsuario(int id)
+    {
+        string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
+        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
+        {
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdUsuario", id);
+
+            await connection.OpenAsync();
+            var reader = await command.ExecuteReaderAsync();
+
+            if (!reader.HasRows)
+            {
+                await connection.CloseAsync();
+                return NotFound("Usuário não encontrado.");
+            }
+
+            await reader.CloseAsync();
+
+            query = "delete from USUARIOS where ID_USUARIO = @IdUsuario";
+
+            command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdUsuario", id);
+
+            int result = await command.ExecuteNonQueryAsync();
+
+            await connection.CloseAsync();
+
+            if (result < 0)
+            {
+                return BadRequest("Não foi possível remover o usuário.");
+            }
+
+            return Ok("Usuario excluido com sucesso!");
+        }
+    }
 }
