@@ -108,7 +108,7 @@ public class UsuariosController : ControllerBase
     }
 
     [HttpPut("AlterarUsuario")]
-    public async Task<ActionResult<UsuarioDTO>> AlterarUsuario([FromBody]UsuarioDTO usuario)
+    public async Task<IActionResult> AlterarUsuario([FromBody]Usuarios usuario)
     {
         string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
         using(SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
@@ -145,7 +145,7 @@ public class UsuariosController : ControllerBase
             }
 
             await connection.CloseAsync();
-            return Ok(usuario);
+            return Ok("Usuario alterado com sucesso");
         }
     }
 
