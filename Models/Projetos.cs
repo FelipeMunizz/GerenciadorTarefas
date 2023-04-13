@@ -7,4 +7,6 @@ public class Projetos
     public string? Descricao { get; set; }
     public DateTime DataInicio { get; set; }
     public DateTime DataFim { get; set; }
+    public int IdUsuario { get; set; }
+    public virtual Usuarios Usuarios { get; set; }
 }

@@ -140,11 +140,11 @@ public class AutorizaController : ControllerBase
     private UsuarioToken GerarToken(LoginDTO loginDTO)
     {
         var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.UniqueName, loginDTO.Email),
-                new Claim("meuPet", "bili"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
+        {
+            new Claim(JwtRegisteredClaimNames.UniqueName, loginDTO.Email),
+            new Claim("meuPet", "bili"),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_config["Jwt:key"]));
