@@ -30,7 +30,7 @@ public class ProjetosController : ControllerBase
         ";
 
 
-        int idUsuario = ObterIdUsuario();
+        int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
 
         if (idUsuario == 0)
         {
@@ -101,39 +101,5 @@ public class ProjetosController : ControllerBase
         {
             return NotFound($"Não foi possivel editar o projeto. Erro: {e.Message}");
         }
-    }
-
-    private int ObterIdUsuario()
-    {
-        var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_config["Jwt:key"]);
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = true,
-            ValidIssuer = _config["TokenConfiguration:Issuer"],
-            ValidateAudience = true,
-            ValidAudience = _config["TokenConfiguration:Audience"],
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
-        };
-
-        SecurityToken validatedToken;
-        var claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out validatedToken);
-
-        var idUsuarioClaim = claimsPrincipal.Claims.FirstOrDefault(claim => claim.Type == "idUsuario");
-        if (idUsuarioClaim == null)
-        {
-            throw new Exception("Token inválido: idUsuario não encontrado");
-        }
-
-        if (!int.TryParse(idUsuarioClaim.Value, out int idUsuario))
-        {
-            throw new Exception("Token inválido: idUsuario inválido");
-        }
-
-        return idUsuario;
-    }
+    }   
 }
