@@ -74,6 +74,7 @@ public class AutorizaController : ControllerBase
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
     {
+        Usuarios usuario = new Usuarios();
         string query = "select * from USUARIOS where EMAIL = @Email and SENHA = @Senha";
         using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
         {
@@ -90,9 +91,20 @@ public class AutorizaController : ControllerBase
                 await connection.CloseAsync();
                 return Unauthorized("Usuario não encontrado.");
             }
+
+
+            if (reader.Read())
+            {
+                usuario.IdUsuario = (int)reader["ID_USUARIO"];
+                usuario.Nome = reader["NOME"].ToString();
+                usuario.Sobrenome = reader["SOBRENOME"].ToString();
+                usuario.Usuario = reader["USUARIO"].ToString();
+                usuario.Email = reader["EMAIL"].ToString();
+                usuario.DataCadastro = Convert.ToDateTime(reader["DATA_CADASTRO"]);
+            }
         }
 
-        return Ok(GerarToken(loginDTO));
+        return Ok(GerarToken(usuario));
     }
 
     [HttpPost("RedefinirSenha")]
@@ -137,12 +149,12 @@ public class AutorizaController : ControllerBase
         return Ok("Sua senha foi atualizada e enviada para o seu email. Tambem verifique sua caixa de spam");
     }
     
-    private UsuarioToken GerarToken(LoginDTO loginDTO)
+    private UsuarioToken GerarToken(Usuarios usuario)
     {
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.UniqueName, loginDTO.Email),
-            new Claim("meuPet", "bili"),
+            new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
+            new Claim("idUsuario", usuario.IdUsuario.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

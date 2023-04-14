@@ -8,5 +8,5 @@ public class Projetos
     public DateTime DataInicio { get; set; }
     public DateTime DataFim { get; set; }
     public int IdUsuario { get; set; }
-    public virtual Usuarios Usuarios { get; set; }
+    public virtual Usuarios? Usuarios { get; set; }
 }
