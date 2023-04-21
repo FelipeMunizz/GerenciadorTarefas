@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
-using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using WebApi.Data;
 
 namespace WebApi.Helpers;
