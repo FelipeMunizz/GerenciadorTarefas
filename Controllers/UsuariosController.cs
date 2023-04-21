@@ -21,7 +21,7 @@ public class UsuariosController : ControllerBase
         _emailHelpers = emailHelpers;
     }
 
-    [HttpGet("{id:int}", Name = "ObterUsuario")]
+    [HttpGet("ObterUsuario/{id:int}")]
     public async Task<ActionResult<Usuarios>> Get(int id)
     {
         Usuarios usuario = new Usuarios();
@@ -149,7 +149,7 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [HttpDelete("{id:int}", Name = "DeletarUsuario")]
+    [HttpDelete("DeletarUsuario/{id:int}")]
     public async Task<IActionResult> DeletarUsuario(int id)
     {
         string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
