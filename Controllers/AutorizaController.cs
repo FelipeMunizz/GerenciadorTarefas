@@ -34,6 +34,9 @@ public class AutorizaController : ControllerBase
         if (!senhaValidada)
             return NotFound("A senha deve conter (Deve ter mais de 8 caracteres, 1 caractere Maiusculo, 1 caractere numerico e 1 caractere especial)");
 
+        if (UsuariosHelpers.UsuarioExistente(usuario.Usuario))
+            return NotFound($"Já existe um usuario: {usuario.Usuario}");
+
         try
         {
             string query = @"insert into USUARIOS (NOME, SOBRENOME, USUARIO, SENHA, EMAIL, DATA_CADASTRO) 
@@ -75,12 +78,12 @@ public class AutorizaController : ControllerBase
     public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
     {
         Usuarios usuario = new Usuarios();
-        string query = "select * from USUARIOS where EMAIL = @Email and SENHA = @Senha";
+        string query = "select * from USUARIOS where USUARIO = @Usuario and SENHA = @Senha";
         using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
         {
             SqlCommand command = new SqlCommand(query, connection);
 
-            command.Parameters.AddWithValue("@Email", loginDTO.Email);
+            command.Parameters.AddWithValue("@Usuario", loginDTO.Usuario);
             command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(loginDTO.Senha));
 
             await connection.OpenAsync();
@@ -107,7 +110,7 @@ public class AutorizaController : ControllerBase
         return Ok(GerarToken(usuario));
     }
 
-    [HttpPost("RedefinirSenha")]
+    [HttpPut("RedefinirSenha")]
     public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaDTO redefinirSenha)
     {
         string novaSenha = "";
@@ -180,5 +183,5 @@ public class AutorizaController : ControllerBase
             Expiration = expiration,
             Message = "Token JWT Ok"
         };
-    }
+    }    
 }
