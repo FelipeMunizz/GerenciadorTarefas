@@ -235,7 +235,7 @@ public class ProjetosController : ControllerBase
 
             var result = await command.ExecuteNonQueryAsync();
 
-            if (result < 0)
+            if (result <= 0)
                 return BadRequest("Não foi possivel excluir o projeto");
 
             await connection.CloseAsync();
