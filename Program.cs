@@ -4,6 +4,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using WebApi.Helpers;
 using WebApi.Helpers.Interfaces;
+using WebApi.Repository;
+using WebApi.Repository.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -67,6 +69,7 @@ builder.Services.AddAuthentication(
     });
 
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
+builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();
 
 var app = builder.Build();
 

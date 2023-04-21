@@ -9,4 +9,6 @@ public class Tarefas
     public string? StatusTarefa { get; set; }
     public int IdProjeto { get; set; }
     public virtual Projetos PROJETO { get; set; }
+    public List<Anexos> Anexos { get; set; } = new List<Anexos>();
 }
+    
