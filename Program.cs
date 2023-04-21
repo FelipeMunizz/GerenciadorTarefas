@@ -70,6 +70,7 @@ builder.Services.AddAuthentication(
 
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
 builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 var app = builder.Build();
 

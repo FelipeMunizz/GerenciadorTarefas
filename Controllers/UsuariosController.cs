@@ -6,6 +6,7 @@ using WebApi.DTOs;
 using WebApi.Helpers;
 using WebApi.Helpers.Interfaces;
 using WebApi.Models;
+using WebApi.Repository.Interfaces;
 
 namespace WebApi.Controllers;
 
@@ -15,45 +16,20 @@ namespace WebApi.Controllers;
 public class UsuariosController : ControllerBase
 {
     private readonly IEmailHelpers _emailHelpers;
+    private readonly IUsuarioRepository _repository;
 
-    public UsuariosController(IEmailHelpers emailHelpers)
+    public UsuariosController(IEmailHelpers emailHelpers, IUsuarioRepository repository)
     {
         _emailHelpers = emailHelpers;
+        _repository = repository;
     }
 
     [HttpGet("ObterUsuario/{id:int}")]
-    public async Task<ActionResult<Usuarios>> Get(int id)
+    public async Task<ActionResult<Usuarios>> ObterUsuario(int id)
     {
-        Usuarios usuario = new Usuarios();
-        string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
+        Usuarios usuario = await _repository.ObterUsuario(id);
 
-            command.Parameters.AddWithValue("@IdUsuario", id);
-
-            await connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
-
-            if (!reader.HasRows)
-            {
-                await connection.CloseAsync();
-                return NotFound("Usuario não encontrado.");
-            }
-
-            if (reader.Read())
-            {
-                usuario.IdUsuario = (int)reader["ID_USUARIO"];
-                usuario.Nome = reader["NOME"].ToString();
-                usuario.Sobrenome = reader["SOBRENOME"].ToString();
-                usuario.Usuario = reader["USUARIO"].ToString();
-                usuario.Email = reader["EMAIL"].ToString();
-                usuario.DataCadastro = Convert.ToDateTime(reader["DATA_CADASTRO"]);
-            }
-
-            await connection.CloseAsync();
-            return Ok(usuario);
-        }
+        return usuario;
     }
 
     [HttpPost("AlterarSenha")]

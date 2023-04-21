@@ -9,6 +9,12 @@ namespace WebApi.Repository
 {
     public class ProjetosRepository : IProjetosRepository
     {
+        private readonly IUsuarioRepository _usuario;
+
+        public ProjetosRepository(IUsuarioRepository usuario)
+        {
+            _usuario = usuario;
+        }
 
         public async Task<List<Projetos>> ListarPorUsuario(int idUsuario)
         {
@@ -82,11 +88,41 @@ namespace WebApi.Repository
             }
         }
 
+        public async Task AdicionarUsuarioProjeto(int idProjeto, string user, bool resoponsavel = false)
+        {
+            string query = @"
+                insert into USUARIOS_PROJETO (ID_PROJETO, ID_USUARIO, RESPONSAVEL)
+                values (@IdProjeto, @IdUsuario, @Responsavel)
+            ";
+
+            Usuarios usuario = await _usuario.ObterUsuarioByUser(user);
+
+            if (usuario == null)
+                throw new Exception("Usuario nao encontrado");
+
+            SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString());
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdProjeto", idProjeto);
+            command.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+            command.Parameters.AddWithValue("@Responsavel", resoponsavel);
+            await connection.OpenAsync();
+
+            var result = await command.ExecuteNonQueryAsync();
+
+            if (result < 1)
+                throw new Exception("Não foi possivel adicionar o usuario ao projeto");
+
+            await connection.CloseAsync();
+            
+        }
+
         public async Task Add(Projetos projeto, int idUsuario)
         {
             string query = @"
-                         insert into PROJETOS (NOME_PROJETO, DESCRICAO, DATA_INICIO, DATA_FIM, ID_USUARIO)
-                                       values (@NomeProjeto, @Descricao, @DataInicio, @DataFim,  @IdUsuario)
+                         INSERT INTO Projetos (NOME_PROJETO, DESCRICAO, DATA_INICIO, DATA_FIM, ID_USUARIO)
+                         OUTPUT INSERTED.ID_PROJETO
+                         VALUES (@NomeProjeto, @Descricao, @DataInicio, @DataFim, @IdUsuario)
             ";
 
             using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
@@ -100,13 +136,18 @@ namespace WebApi.Repository
                 command.Parameters.AddWithValue("@IdUsuario", idUsuario);
 
                 await connection.OpenAsync();
-                int result = await command.ExecuteNonQueryAsync();
+                object idProjetoObj = await command.ExecuteScalarAsync();
+                int idProjeto = idProjetoObj != null && int.TryParse(idProjetoObj.ToString(), out int result) ? result : 0;
 
-                if (result < 0)
+                if (idProjeto < 1)
                 {
                     await connection.CloseAsync();
                     throw new Exception("Não foi possivel adicionar o projeto");
                 }
+
+                Usuarios usuario = await _usuario.ObterUsuario(idUsuario);
+
+                await AdicionarUsuarioProjeto(idProjeto, usuario.Usuario, true);
 
                 await connection.CloseAsync();
             }
@@ -130,7 +171,7 @@ namespace WebApi.Repository
                 await connection.OpenAsync();
                 int result = await command.ExecuteNonQueryAsync();
 
-                if (result < 0)
+                if (result < 1)
                 {
                     await connection.CloseAsync();
                     throw new Exception("Não foi possivel editar o projeto");
@@ -169,7 +210,7 @@ namespace WebApi.Repository
 
                 int result = await command.ExecuteNonQueryAsync();
 
-                if (result < 0)
+                if (result < 1)
                 {
                     await connection.CloseAsync();
                     throw new Exception();
@@ -196,7 +237,7 @@ namespace WebApi.Repository
 
                 var result = await command.ExecuteNonQueryAsync();
 
-                if (result <= 0)
+                if (result < 1)
                     throw new Exception("Não foi possivel excluir o projeto");
 
                 await connection.CloseAsync();
