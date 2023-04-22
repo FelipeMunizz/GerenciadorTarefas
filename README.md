@@ -15,9 +15,11 @@ O Task Master ainda está em Desenvolvimento
 
 # Documentação da Api
 
-## Autenticação
+## 1- Autenticação
 
-### POST /api/Usuarios/Registrar
+### Para usuarios não autenticado
+
+### POST /api/Autoriza/Registrar
 
 Registra um novo usuário no sistema.
 
@@ -38,7 +40,7 @@ Registra um novo usuário no sistema.
 - 400 Bad Request: Falha ao criar o usuário.
 - 404 Not Found: Usuário já existe no sistema.
 
-### POST /api/Usuarios/Login
+### POST /api/Autoriza/Login
 Autentica um usuário no sistema.
 #### Body
 
@@ -50,11 +52,11 @@ Autentica um usuário no sistema.
 
 ``` 
 ### Respostas
-- 200 OK: Usuário autenticado com sucesso. Retorna um token JWT.
+- 201 OK: Usuário autenticado com sucesso. Retorna um token JWT.
 - 401 Unauthorized: Usuário ou senha incorretos.
 
-### PUT /api/Usuarios/RedefinirSenha
-Redefine a senha de um usuário.
+### PUT /api/Autoriza/RedefinirSenha
+Redefine a senha de um usuário. Obs.: Gera senha aleatória que será enviada pelo email.
 
 #### Body
 
@@ -65,7 +67,82 @@ Redefine a senha de um usuário.
 }
 ``` 
 ### Respostas
-- 200 OK: Senha redefinida com sucesso e enviada por e-mail.
+- 201 OK: Senha redefinida com sucesso e enviada por e-mail.
 - 400 Bad Request: Falha ao redefinir a senha.
 - 401 Unauthorized: Usuário não encontrado.
 - 500 Internal Server Error: Falha ao enviar o e-mail com a nova senha.
+
+## 2- Usuarios
+
+### Necessário autenticação
+
+### GET /api/Usuario/ObterUsuario
+
+Obtem usuário no sistema pelo ID
+
+#### Query
+
+```json
+{
+  "IdUsuario" : "int"
+}
+``` 
+### Respostas
+- 201 OK: Usuário
+- 400 Bad Request: Falha ao redefinir a senha.
+
+### PUT /api/Usuario/AlterarSenha
+Alterar senha do usuário no sistema
+
+#### Body
+
+```json
+{
+  "Usuario": "string",
+  "SenhaAtual": "string",
+  "NovaSenha": "string",
+  "ConfirmarSenha": "string"
+}
+``` 
+### Respostas
+- 201 OK: Senha alterada com sucesso!
+- 404 Not Found: As senhas não conferem.
+- 404 Not Found: As senhas não condiz com as regas.
+- 404 Not Found: Usuario não encontrado.
+- 404 Not Found: Não foi possivel atualizar a senha.
+- 500 Internal Server Error: Falha ao enviar o e-mail com a nova senha.
+
+### PUT /api/Usuario/AlterarUsuario
+Altera usuário no sistema. Obs.: não altera senha do usuário.
+
+#### Body
+
+```json
+{
+  "IdUsuario" : "int"
+  "Nome" : "string"
+  "Sobrenome" : "string"
+  "Usuario" : "string"
+  "Email" : "string"
+}
+``` 
+### Respostas
+- 201 OK: Usuario alterado com sucesso.
+- 404 Not Found: Usuario não encontrado.
+- 404 Not Found: Não foi possivel atualizar as informações do usuario.
+
+### DELETE /api/Usuario/DeletarUsuario
+
+Deletar usuário do sistema
+
+#### Query
+
+```json
+{
+  "IdUsuario" : "int"
+}
+``` 
+### Respostas
+- 201 OK: Usuario excluido com sucesso.
+- 404 Not Found: Usuário não encontrado.
+- 404 Not Found: Não foi possível remover o usuário.
