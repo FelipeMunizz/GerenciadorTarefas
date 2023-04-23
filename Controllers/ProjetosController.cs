@@ -1,8 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
-using System.Data.SqlClient;
-using WebApi.Data;
 using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Repository.Interfaces;

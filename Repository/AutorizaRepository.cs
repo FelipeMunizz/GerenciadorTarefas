@@ -16,11 +16,13 @@ public class AutorizaRepository : IAutorizaRepository
 {
     private readonly IConfiguration _config;
     private readonly IEmailHelpers _emailHelpers;
+    private readonly IUsuarioRepository _usuario;
 
-    public AutorizaRepository(IConfiguration config, IEmailHelpers emailHelpers)
+    public AutorizaRepository(IConfiguration config, IEmailHelpers emailHelpers, IUsuarioRepository usuario)
     {
         _config = config;
         _emailHelpers = emailHelpers;
+        _usuario = usuario;
     }
 
     public async Task<Usuarios> RegistrarUsuario(Usuarios usuario)
@@ -67,6 +69,25 @@ public class AutorizaRepository : IAutorizaRepository
 
             throw new Exception($"Não foi possivel registrar o usuario: {e.Message}");
         }
+    }
+
+    public async Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle)
+    {
+        Usuarios usuario = await _usuario.ObterUsuarioByUser(usuarioGoogle.Usuario);
+        if (usuario != null)
+            throw new Exception("Usuario já existente.");
+        usuario = new Usuarios
+        {
+            Nome = usuarioGoogle.Nome,
+            Sobrenome = usuarioGoogle.Sobrenome,
+            Usuario = usuarioGoogle.Usuario,
+            Email = usuarioGoogle.Email,
+            Senha = SenhaHelpers.GenerateRandomPassword()
+        };
+
+        await RegistrarUsuario(usuario);
+
+        return usuario;
     }
 
     public async Task<UsuarioToken> Login(LoginDTO loginDTO)

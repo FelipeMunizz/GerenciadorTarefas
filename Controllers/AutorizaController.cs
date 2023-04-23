@@ -1,13 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Data.SqlClient;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using WebApi.Data;
 using WebApi.DTOs;
-using WebApi.Helpers;
 using WebApi.Helpers.Interfaces;
 using WebApi.Models;
 using WebApi.Repository.Interfaces;
@@ -19,14 +12,10 @@ namespace WebApi.Controllers;
 [ApiController]
 public class AutorizaController : ControllerBase
 {
-    private readonly IConfiguration _config;
-    private readonly IEmailHelpers _emailHelpers;
     private readonly IAutorizaRepository _autoriza;
 
-    public AutorizaController(IConfiguration config, IEmailHelpers emailHelpers, IAutorizaRepository autoriza)
+    public AutorizaController(IAutorizaRepository autoriza)
     {
-        _config = config;
-        _emailHelpers = emailHelpers;
         _autoriza = autoriza;
     }
 
@@ -35,6 +24,13 @@ public class AutorizaController : ControllerBase
     {
         Usuarios user = await _autoriza.RegistrarUsuario(usuario);
         return Ok(user);
+    }
+
+    [HttpPost("RegistrarGoogle")]
+    public async Task<IActionResult> RegistrarGoogle([FromBody] UsuarioGoogleDTO usuarioGoogle)
+    {
+        Usuarios usuario = await _autoriza.RegistrarUsuarioGoogle(usuarioGoogle);
+        return Ok(usuario);
     }
 
     [HttpPost("Login")]

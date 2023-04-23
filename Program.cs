@@ -56,19 +56,28 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthentication(
-    JwtBearerDefaults.AuthenticationScheme).
-    AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+    JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
-        ValidIssuer = builder.Configuration["TokenConfiguration:Issuer"],
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
-    });
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
+            ValidIssuer = builder.Configuration["TokenConfiguration:Issuer"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
+        };
+    })
+.AddGoogle(options =>
+{
+    options.ClientId = "137107799899-1qk723j0sikc03hf95hh6aluedkghiqa.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+});
 
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
+builder.Services.AddScoped<IAutorizaRepository, AutorizaRepository>();
 builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
