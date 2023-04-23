@@ -10,6 +10,7 @@ using WebApi.DTOs;
 using WebApi.Helpers;
 using WebApi.Helpers.Interfaces;
 using WebApi.Models;
+using WebApi.Repository.Interfaces;
 
 namespace WebApi.Controllers;
 
@@ -20,94 +21,27 @@ public class AutorizaController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly IEmailHelpers _emailHelpers;
+    private readonly IAutorizaRepository _autoriza;
 
-    public AutorizaController(IConfiguration config, IEmailHelpers emailHelpers)
+    public AutorizaController(IConfiguration config, IEmailHelpers emailHelpers, IAutorizaRepository autoriza)
     {
         _config = config;
         _emailHelpers = emailHelpers;
+        _autoriza = autoriza;
     }
 
     [HttpPost("Registrar")]
     public async Task<IActionResult> Registrar([FromBody] Usuarios usuario)
     {
-        var senhaValidada = SenhaHelpers.ValidaSenha(usuario.Senha);
-        if (!senhaValidada)
-            return NotFound("A senha deve conter (Deve ter mais de 8 caracteres, 1 caractere Maiusculo, 1 caractere numerico e 1 caractere especial)");
-
-        if (UsuariosHelpers.UsuarioExistente(usuario.Usuario))
-            return NotFound($"Já existe um usuario: {usuario.Usuario}");
-
-        try
-        {
-            string query = @"insert into USUARIOS (NOME, SOBRENOME, USUARIO, SENHA, EMAIL, DATA_CADASTRO) 
-                                       values (@Nome, @Sobrenome, @Usuario, @Senha, @Email, @DataCadastro)";
-
-            using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
-
-                command.Parameters.AddWithValue("@Nome", usuario.Nome);
-                command.Parameters.AddWithValue("@Sobrenome", usuario.Sobrenome);
-                command.Parameters.AddWithValue("@Usuario", usuario.Usuario);
-                command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(usuario.Senha));
-                command.Parameters.AddWithValue("@Email", usuario.Email);
-                command.Parameters.AddWithValue("@DataCadastro", DateTime.Now);
-
-                await connection.OpenAsync();
-                int result = await command.ExecuteNonQueryAsync();
-
-                if (result < 0)
-                {
-                    await connection.CloseAsync();
-                    return BadRequest();
-                }
-
-                return Ok(usuario);
-            }
-        }
-        catch (Exception e)
-        {
-            SqlConnection connection = new SqlConnection();
-            connection.Close();
-
-            return BadRequest($"Não foi possivel registrar o usuario: {e.Message}");
-        }
+        Usuarios user = await _autoriza.RegistrarUsuario(usuario);
+        return Ok(user);
     }
 
     [HttpPost("Login")]
     public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
     {
-        Usuarios usuario = new Usuarios();
-        string query = "select * from USUARIOS where USUARIO = @Usuario and SENHA = @Senha";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
-
-            command.Parameters.AddWithValue("@Usuario", loginDTO.Usuario);
-            command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(loginDTO.Senha));
-
-            await connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
-
-            if(!reader.HasRows)
-            {
-                await connection.CloseAsync();
-                return Unauthorized("Usuario não encontrado.");
-            }
-
-
-            if (reader.Read())
-            {
-                usuario.IdUsuario = (int)reader["ID_USUARIO"];
-                usuario.Nome = reader["NOME"].ToString();
-                usuario.Sobrenome = reader["SOBRENOME"].ToString();
-                usuario.Usuario = reader["USUARIO"].ToString();
-                usuario.Email = reader["EMAIL"].ToString();
-                usuario.DataCadastro = Convert.ToDateTime(reader["DATA_CADASTRO"]);
-            }
-        }
-
-        return Ok(GerarToken(usuario));
+        UsuarioToken login = await _autoriza.Login(loginDTO);
+        return Ok(login);
     }
 
     [HttpPut("RedefinirSenha")]
@@ -152,36 +86,5 @@ public class AutorizaController : ControllerBase
         return Ok("Sua senha foi atualizada e enviada para o seu email. Tambem verifique sua caixa de spam");
     }
     
-    private UsuarioToken GerarToken(Usuarios usuario)
-    {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
-            new Claim("idUsuario", usuario.IdUsuario.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:key"]));
-
-        var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var expiracao = _config["TokenConfiguration:ExpireHours"];
-        var expiration = DateTime.UtcNow.AddHours(double.Parse(expiracao));
-
-        JwtSecurityToken token = new JwtSecurityToken(
-                issuer: _config["TokenConfiguration:Issuer"],
-                audience: _config["TokenConfiguration:Audience"],
-                claims: claims,
-                expires: expiration,
-                signingCredentials: credenciais);
-
-        return new UsuarioToken()
-        {
-            Authenticated = true,
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
-            Expiration = expiration,
-            Message = "Token JWT Ok"
-        };
-    }    
+    
 }
