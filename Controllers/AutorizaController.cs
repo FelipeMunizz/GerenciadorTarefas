@@ -19,6 +19,12 @@ public class AutorizaController : ControllerBase
         _autoriza = autoriza;
     }
 
+    [HttpGet("Teste")]
+    public string Get()
+    {
+        return $"Api acessada em {DateTime.Now.ToString("dd/MM/yyyy")}";
+    }
+
     [HttpPost("Registrar")]
     public async Task<IActionResult> Registrar([FromBody] Usuarios usuario)
     {
