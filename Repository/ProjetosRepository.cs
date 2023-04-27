@@ -2,6 +2,7 @@
 using System.Data.SqlClient;
 using WebApi.Data;
 using WebApi.Helpers;
+using WebApi.Helpers.Interfaces;
 using WebApi.Models;
 using WebApi.Repository.Interfaces;
 
@@ -10,12 +11,12 @@ namespace WebApi.Repository
     public class ProjetosRepository : IProjetosRepository
     {
         private readonly IUsuarioRepository _usuario;
-        private readonly IUsuariosProjetoRepository _usuariosProjeto;
+        private readonly IEmailHelpers _email;
 
-        public ProjetosRepository(IUsuarioRepository usuario, IUsuariosProjetoRepository usuariosProjeto)
+        public ProjetosRepository(IUsuarioRepository usuario, IEmailHelpers email)
         {
             _usuario = usuario;
-            _usuariosProjeto = usuariosProjeto;
+            _email = email;
         }
 
         public async Task<List<Projetos>> ListarPorUsuario(int idUsuario)
@@ -120,7 +121,7 @@ namespace WebApi.Repository
 
                 Usuarios usuario = await _usuario.ObterUsuario(idUsuario);
 
-                await _usuariosProjeto.AdicionarUsuarioProjeto(idProjeto, usuario.Usuario, idUsuario, true);
+                await AdicionarUsuarioProjeto(idProjeto, usuario.Usuario, idUsuario, true);
 
                 await connection.CloseAsync();
             }
@@ -215,6 +216,53 @@ namespace WebApi.Repository
 
                 await connection.CloseAsync();
             }
+        }
+        public async Task AdicionarUsuarioProjeto(int idProjeto, string user, int idUsuarioResponsavel = 0, bool resoponsavel = false)
+        {
+            string query = @"
+                insert into USUARIOS_PROJETO (ID_PROJETO, ID_USUARIO, RESPONSAVEL)
+                values (@IdProjeto, @IdUsuario, @Responsavel)
+            "
+            ;
+
+            Usuarios usuario = await _usuario.ObterUsuarioByUser(user);
+
+            usuario.NomeCompleto();
+
+            if (usuario == null)
+                throw new Exception("Usuario nao encontrado");
+
+            SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString());
+            SqlCommand command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdProjeto", idProjeto);
+            command.Parameters.AddWithValue("@IdUsuario", usuario.IdUsuario);
+            command.Parameters.AddWithValue("@Responsavel", resoponsavel);
+            await connection.OpenAsync();
+
+            var result = await command.ExecuteNonQueryAsync();
+
+            if (result < 1)
+                throw new Exception("Não foi possivel adicionar o usuario ao projeto");
+
+            await connection.CloseAsync();
+
+            if (!resoponsavel)
+            {
+                Usuarios usuarioResponsavel = await _usuario.ObterUsuario(idUsuarioResponsavel);
+                Projetos projeto = await ObterProjeto(idProjeto, idUsuarioResponsavel);
+                string assunto = "Você foi adicionado a um novo projeto";
+                string mensagem = $"Olá {usuario.Nome}, você foi adicionado ao projeto {projeto.NomeProjeto}, por {usuarioResponsavel.NomeCompleto()}.";
+                bool sucesso = _email.Enviar(usuario.Email, assunto, mensagem);
+
+                if (!sucesso)
+                    throw new Exception("Não foi possivel enviar o email");
+            }
+        }
+
+        public Task RemoverUsuarioProjeto(int idProjeto, int idUsuarioProjeto, int idResponsavel)
+        {
+            throw new NotImplementedException();
         }
     }
 }

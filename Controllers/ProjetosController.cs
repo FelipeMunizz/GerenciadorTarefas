@@ -20,6 +20,7 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpGet("ListarProjetos")]
+    [Produces("application/json")]
     public async Task<ActionResult<List<Projetos>>> ListarProjetos()
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
@@ -29,6 +30,7 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpGet("ObterProjeto/{idProjeto:int}")]
+    [Produces("application/json")]
     public async Task<ActionResult<Projetos>> ObterProjeto(int idProjeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
@@ -38,6 +40,7 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpPost("CriarProjeto")]
+    [Produces("application/json")]
     public async Task<IActionResult> CriarProjeto([FromBody] Projetos projeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
@@ -48,6 +51,7 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpPut("EditarProjeto")]
+    [Produces("application/json")]
     public async Task<IActionResult> EditarProjeto([FromBody] Projetos projeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
@@ -58,6 +62,7 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpDelete("FinalizarProjeto/{idProjeto:int}")]
+    [Produces("application/json")]
     public async Task<IActionResult> FinalizarProjeto(int idProjeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
@@ -67,11 +72,20 @@ public class ProjetosController : ControllerBase
     }
 
     [HttpDelete("DeletarProjeto/{idProjeto:int}")]
+    [Produces("application/json")]
     public async Task<IActionResult> DeletarProjeto(int idProjeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
         await _repository.Delete(idProjeto, idUsuario);
 
         return Ok("Projeto deletado com sucesso");
+    }
+
+    [HttpPost("AdicionarUsuariosProjeto/{idProjeto:int}")]
+    [Produces("application/json")]
+    public async Task<IActionResult> AdicionarUsuariosProjeto(int idProjeto, [FromQuery] string usuario)
+    {
+        await _repository.AdicionarUsuarioProjeto(idProjeto, usuario, UsuariosHelpers.ObterIdUsuario(Request));
+        return Ok("Usuario adicionado ao projeto com sucesso");
     }
 }

@@ -18,6 +18,39 @@ public class UsuariosController : ControllerBase
         _repository = repository;
     }
 
+    [AllowAnonymous]
+    [HttpPost("Registrar")]
+    public async Task<IActionResult> Registrar([FromBody] Usuarios usuario)
+    {
+        Usuarios user = await _repository.RegistrarUsuario(usuario);
+        return Ok(user);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("RegistrarGoogle")]
+    public async Task<IActionResult> RegistrarGoogle([FromBody] UsuarioGoogleDTO usuarioGoogle)
+    {
+        Usuarios usuario = await _repository.RegistrarUsuarioGoogle(usuarioGoogle);
+        return Ok(usuario);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+    {
+        UsuarioToken login = await _repository.Login(loginDTO);
+        return Ok(login);
+    }
+
+    [AllowAnonymous]
+    [HttpPut("RedefinirSenha")]
+    public async Task<IActionResult> RedefinirSenha([FromBody] RedefinirSenhaDTO redefinirSenha)
+    {
+        await _repository.RedefinirSenha(redefinirSenha);
+
+        return Ok("Sua senha foi atualizada e enviada para o seu email. Tambem verifique sua caixa de spam");
+    }
+
     [HttpGet("ObterUsuario/{id:int}")]
     public async Task<ActionResult<Usuarios>> ObterUsuario(int id)
     {

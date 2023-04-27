@@ -77,9 +77,7 @@ builder.Services.AddAuthentication(
 });
 
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
-builder.Services.AddScoped<IAutorizaRepository, AutorizaRepository>();
 builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();
-builder.Services.AddScoped<IUsuariosProjetoRepository, UsuariosProjetoRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 var app = builder.Build();
