@@ -20,7 +20,7 @@ public class UsuariosProjetoRepository : IUsuariosProjetoRepository
         _projetos = projetos;
     }
 
-    public async Task AdicionarUsuarioProjeto(int idProjeto, string user, bool resoponsavel = false)
+    public async Task AdicionarUsuarioProjeto(int idProjeto, string user, int idUsuarioResponsavel = 0, bool resoponsavel = false)
     {
         string query = @"
                 insert into USUARIOS_PROJETO (ID_PROJETO, ID_USUARIO, RESPONSAVEL)
@@ -50,10 +50,14 @@ public class UsuariosProjetoRepository : IUsuariosProjetoRepository
 
         if(resoponsavel == false)
         {
-            Projetos projeto = await _projetos.ObterProjeto(idProjeto, )
+            Usuarios usuarioResponsavel = await _usuario.ObterUsuario(idUsuarioResponsavel);
+            Projetos projeto = await _projetos.ObterProjeto(idProjeto, idUsuarioResponsavel);
             string assunto = "Você foi adicionado a um novo projeto";
-            string mensagem = $"Ola {usuario.Nome}, você foi adicionado ao projeto {}";
+            string mensagem = $"Olá {usuario.Nome}, você foi adicionado ao projeto {projeto.NomeProjeto}, por {usuarioResponsavel.Nome}.";
             bool sucesso = _email.Enviar(usuario.Email, assunto, mensagem);
+
+            if (!sucesso)
+                throw new Exception("Não foi possivel enviar o email");
         }
     }
 }

@@ -36,13 +36,6 @@ public class ProjetosController : ControllerBase
 
         return Ok(projeto);
     }
-    
-    [HttpPost("AdicionarUsuariosProjeto/{idProjeto:int}")]
-    public async Task<IActionResult> AdicionarUsuariosProjeto(int idProjeto, [FromQuery]string usuario)
-    {
-        await _repository.AdicionarUsuarioProjeto(idProjeto, usuario);
-        return Ok("Usuario adicionado ao projeto com sucesso");
-    }
 
     [HttpPost("CriarProjeto")]
     public async Task<IActionResult> CriarProjeto([FromBody] Projetos projeto)

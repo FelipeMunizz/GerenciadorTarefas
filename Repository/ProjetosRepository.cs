@@ -120,7 +120,7 @@ namespace WebApi.Repository
 
                 Usuarios usuario = await _usuario.ObterUsuario(idUsuario);
 
-                await _usuariosProjeto.AdicionarUsuarioProjeto(idProjeto, usuario.Usuario, true);
+                await _usuariosProjeto.AdicionarUsuarioProjeto(idProjeto, usuario.Usuario, idUsuario, true);
 
                 await connection.CloseAsync();
             }
