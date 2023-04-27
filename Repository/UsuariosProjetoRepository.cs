@@ -10,12 +10,14 @@ namespace WebApi.Repository;
 public class UsuariosProjetoRepository : IUsuariosProjetoRepository
 {
     private readonly IUsuarioRepository _usuario;
+    private readonly IProjetosRepository _projetos;
     private readonly IEmailHelpers _email;
 
-    public UsuariosProjetoRepository(IUsuarioRepository usuario, IEmailHelpers email)
+    public UsuariosProjetoRepository(IUsuarioRepository usuario, IEmailHelpers email, IProjetosRepository projetos)
     {
         _usuario = usuario;
         _email = email;
+        _projetos = projetos;
     }
 
     public async Task AdicionarUsuarioProjeto(int idProjeto, string user, bool resoponsavel = false)
@@ -48,9 +50,9 @@ public class UsuariosProjetoRepository : IUsuariosProjetoRepository
 
         if(resoponsavel == false)
         {
-            Usuarios usuarioResponsavel = await _usuario.ObterUsuario(UsuariosHelpers.ObterIdUsuario())
+            Projetos projeto = await _projetos.ObterProjeto(idProjeto, )
             string assunto = "Você foi adicionado a um novo projeto";
-            string mensagem = $"Ola {}";
+            string mensagem = $"Ola {usuario.Nome}, você foi adicionado ao projeto {}";
             bool sucesso = _email.Enviar(usuario.Email, assunto, mensagem);
         }
     }
