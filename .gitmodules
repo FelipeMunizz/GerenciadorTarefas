@@ -1,0 +1,3 @@
+[submodule "GerenciadorTarefasFront"]
+	path = GerenciadorTarefasFront
+	url = https://github.com/FelipeMunizz/GerenciadorTarefasFront.git
