@@ -80,7 +80,7 @@ public class ProjetosController : ControllerBase
 
         return Ok("Projeto deletado com sucesso");
     }
-    [AllowAnonymous]
+
     [HttpGet("ListarUsuariosProjeto/{idProjeto:int}")]
     [Produces("application/json")]
     public async Task<object> ListarUsuariosProjeto(int idProjeto)
