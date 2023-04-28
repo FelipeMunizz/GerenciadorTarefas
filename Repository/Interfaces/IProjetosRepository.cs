@@ -10,6 +10,8 @@ public interface IProjetosRepository
     Task Add(Projetos projeto, int idUsuario);
     Task Update(Projetos projeto, int idUsuario);
     Task Delete(int idProjeto, int idUsuario);
+    Task<object> ListarUsuariosProjeto(int idProjeto);
+    Task<UsuariosProjeto> ObterUsuarioProjeto(int idUsuarioProjeto);
     Task AdicionarUsuarioProjeto(int idProjeto, string user, int idUsuarioResponsavel = 0, bool responsavel = false);
-    Task RemoverUsuarioProjeto(int idProjeto, int idUsuarioProjeto, int idResponsavel);
+    Task RemoverUsuarioProjeto(int idProjeto, int idUsuarioProjeto);
 }

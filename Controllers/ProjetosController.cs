@@ -80,6 +80,20 @@ public class ProjetosController : ControllerBase
 
         return Ok("Projeto deletado com sucesso");
     }
+    [AllowAnonymous]
+    [HttpGet("ListarUsuariosProjeto/{idProjeto:int}")]
+    [Produces("application/json")]
+    public async Task<object> ListarUsuariosProjeto(int idProjeto)
+    {
+        return await _repository.ListarUsuariosProjeto(idProjeto);
+    }
+
+    [HttpGet("ObterUsuarioProjetp/{idUsuarioProjeto:int}/{idProjeto:int}")]
+    [Produces("application/json")]
+    public async Task<ActionResult<UsuariosProjeto>> ObterUsuarioProjeto(int idUsuarioProjeto)
+    {
+        return await _repository.ObterUsuarioProjeto(idUsuarioProjeto);
+    }
 
     [HttpPost("AdicionarUsuariosProjeto/{idProjeto:int}")]
     [Produces("application/json")]
@@ -87,5 +101,13 @@ public class ProjetosController : ControllerBase
     {
         await _repository.AdicionarUsuarioProjeto(idProjeto, usuario, UsuariosHelpers.ObterIdUsuario(Request));
         return Ok("Usuario adicionado ao projeto com sucesso");
+    }
+
+    [HttpDelete("RemoverUsuarioProjeto/{idProjeto:int}/{idUsuarioProjeto:int}")]
+    [Produces("application/json")]
+    public async Task<IActionResult> RemoverUsuarioProjeto(int idProjeto, int idUsuarioProjeto)
+    {
+        await _repository.RemoverUsuarioProjeto(idProjeto, idUsuarioProjeto);
+        return Ok();
     }
 }
