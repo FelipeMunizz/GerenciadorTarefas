@@ -10,4 +10,7 @@ Task Master é um software de gerenciamento de tarefas que ajuda você a manter 
 
 ## Projeto em Desenvolvimento
 
+### Repositorio do projeto Front- End
+- https://github.com/FelipeMunizz/GerenciadorTarefasFront
+
 O Task Master ainda está em Desenvolvimento
