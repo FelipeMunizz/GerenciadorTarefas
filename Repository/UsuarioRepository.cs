@@ -88,7 +88,7 @@ public class UsuarioRepository : IUsuarioRepository
         return usuario;
     }
 
-    public async Task<UsuarioToken> Login(LoginDTO loginDTO)
+    public async Task<string> Login(LoginDTO loginDTO)
     {
         Usuarios usuario = new Usuarios();
         string query = "select * from USUARIOS where USUARIO = @Usuario and SENHA = @Senha";
@@ -160,39 +160,6 @@ public class UsuarioRepository : IUsuarioRepository
             if (!emailEnviado)
                 throw new Exception("Não foi possível enviar o email com a nova senha");
         }
-    }
-
-    private UsuarioToken GerarToken(Usuarios usuario)
-    {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
-            new Claim("idUsuario", usuario.IdUsuario.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:key"]));
-
-        var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var expiracao = _config["TokenConfiguration:ExpireHours"];
-        var expiration = DateTime.UtcNow.AddHours(double.Parse(expiracao));
-
-        JwtSecurityToken token = new JwtSecurityToken(
-                issuer: _config["TokenConfiguration:Issuer"],
-                audience: _config["TokenConfiguration:Audience"],
-                claims: claims,
-                expires: expiration,
-                signingCredentials: credenciais);
-
-        return new UsuarioToken()
-        {
-            Authenticated = true,
-            Token = new JwtSecurityTokenHandler().WriteToken(token),
-            Expiration = expiration,
-            Message = "Token JWT Ok"
-        };
     }
 
     public async Task<Usuarios> ObterUsuario(int idUsuario)
@@ -374,5 +341,32 @@ public class UsuarioRepository : IUsuarioRepository
                 throw new Exception("Não foi possível remover o usuário.");
             }            
         }
+    }
+
+    private string GerarToken(Usuarios usuario)
+    {
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
+            new Claim("idUsuario", usuario.IdUsuario.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_config["Jwt:key"]));
+
+        var credenciais = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var expiracao = _config["TokenConfiguration:ExpireHours"];
+        var expiration = DateTime.UtcNow.AddHours(double.Parse(expiracao));
+
+        JwtSecurityToken token = new JwtSecurityToken(
+                issuer: _config["TokenConfiguration:Issuer"],
+                audience: _config["TokenConfiguration:Audience"],
+                claims: claims,
+                expires: expiration,
+                signingCredentials: credenciais);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

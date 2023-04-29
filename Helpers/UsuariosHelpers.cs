@@ -39,7 +39,7 @@ public static class UsuariosHelpers
             connection.Open();
 
             var reader = command.ExecuteReader();
-            if (reader != null)
+            if (reader.HasRows)
             {
                 reader.Close();
                 return true;

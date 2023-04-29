@@ -7,7 +7,7 @@ public interface IUsuarioRepository
 {
     Task<Usuarios> RegistrarUsuario(Usuarios usuario);
     Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle);
-    Task<UsuarioToken> Login(LoginDTO loginDTO);
+    Task<string> Login(LoginDTO loginDTO);
     Task RedefinirSenha(RedefinirSenhaDTO redefinirSenha);
     Task<Usuarios> ObterUsuario(int idUsuario);
     Task<Usuarios> ObterUsuarioByUser(string user);
