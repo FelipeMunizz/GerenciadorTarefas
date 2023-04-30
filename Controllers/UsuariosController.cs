@@ -38,7 +38,7 @@ public class UsuariosController : ControllerBase
     [HttpPost("Login")]
     public async Task<string> Login([FromBody] LoginDTO loginDTO)
     {
-        return await _repository.Login(loginDTO); ;
+        return await _repository.Login(loginDTO); 
     }
 
     [AllowAnonymous]
