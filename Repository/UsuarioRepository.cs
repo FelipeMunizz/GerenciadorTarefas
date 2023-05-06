@@ -162,6 +162,41 @@ public class UsuarioRepository : IUsuarioRepository
         }
     }
 
+    public async Task EnviarUsuario(string email)
+    {
+        string usuario = string.Empty;
+        string query = "select top 1 usuario from usuarios where email = @Email";
+
+        SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString());
+        SqlCommand command = new SqlCommand(query, connection);
+        command.Parameters.AddWithValue("@Email", email);
+
+        await connection.OpenAsync();
+
+        var reader = await command.ExecuteReaderAsync();
+
+        if (!reader.HasRows)
+            throw new Exception("Usuario não encontrado");
+
+        if (reader.Read())
+        {
+            usuario = (string)reader["Usuario"];
+        }
+
+        if (!string.IsNullOrEmpty(usuario))
+        {
+            string assunto = "Esqueceu seu usuario no Task Master?";
+            string msg = $"Seu usaurio é {usuario}";
+            bool sucesso = _emailHelpers.Enviar(email, assunto, msg);
+            if (!sucesso)
+                throw new Exception("Não foi possivel enviar o usuario por email");
+        }
+        else
+        {
+            throw new Exception("Usaurio não infomrado (Contate o suporte)");
+        }
+    }
+
     public async Task<Usuarios> ObterUsuario(int idUsuario)
     {
         Usuarios usuario = new Usuarios();

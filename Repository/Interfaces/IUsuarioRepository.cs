@@ -9,6 +9,7 @@ public interface IUsuarioRepository
     Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle);
     Task<string> Login(LoginDTO loginDTO);
     Task RedefinirSenha(RedefinirSenhaDTO redefinirSenha);
+    Task EnviarUsuario(string email);
     Task<Usuarios> ObterUsuario(int idUsuario);
     Task<Usuarios> ObterUsuarioByUser(string user);
     Task AlterarSenha(AlterarSenhaDTO alterarSenha);

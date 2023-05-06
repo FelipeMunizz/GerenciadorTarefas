@@ -50,6 +50,14 @@ public class UsuariosController : ControllerBase
         return Ok("Sua senha foi atualizada e enviada para o seu email. Tambem verifique sua caixa de spam");
     }
 
+    [AllowAnonymous]
+    [HttpGet("EnviarUsuario")]
+    public async Task<IActionResult> EnviarUsuario(string email)
+    {
+        await _repository.EnviarUsuario(email);
+        return Ok();
+    }
+
     [HttpGet("ObterUsuario/{id:int}")]
     public async Task<ActionResult<Usuarios>> ObterUsuario(int id)
     {
