@@ -1,7 +1,10 @@
-﻿namespace WebApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApi.Models;
 
 public class Usuarios
 {
+    [Key]
     public int IdUsuario { get; set; }
     public string? Nome { get; set; }
     public string? Sobrenome { get; set; }

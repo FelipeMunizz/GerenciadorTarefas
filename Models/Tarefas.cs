@@ -1,7 +1,10 @@
-﻿namespace WebApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApi.Models;
 
 public class Tarefas 
 {
+    [Key]
     public int IdTarefa { get; set; }
     public string? Titulo { get; set; }
     public string? Descricao { get; set; }

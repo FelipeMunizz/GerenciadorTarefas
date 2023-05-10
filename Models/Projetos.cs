@@ -1,7 +1,10 @@
-﻿namespace WebApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApi.Models;
 
 public class Projetos 
 {
+    [Key]
     public int IdProjeto {  get; set; }
     public string? NomeProjeto { get; set; }
     public string? Descricao { get; set; }

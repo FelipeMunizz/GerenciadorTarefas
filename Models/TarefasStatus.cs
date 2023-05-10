@@ -1,7 +1,10 @@
-﻿namespace WebApi.Models;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApi.Models;
 
 public class TarefasStatus
 {
+    [Key]
     public int IdTarefa { get; set; }
     public int IdStatus { get; set; }
     public DateTime DataAlteracao { get; set; }
