@@ -16,13 +16,15 @@ public class UsuarioRepository : IUsuarioRepository
 {
     private readonly IConfiguration _config;
     private readonly IEmailHelpers _emailHelpers;
+    private readonly AppDbContext _context;
 
-    public UsuarioRepository(IConfiguration config, IEmailHelpers emailHelpers)
+    public UsuarioRepository(IConfiguration config, IEmailHelpers emailHelpers, AppDbContext context)
     {
         _config = config;
         _emailHelpers = emailHelpers;
+        _context = context;
     }
-    
+
     public async Task<Usuarios> RegistrarUsuario(Usuarios usuario)
     {
         var senhaValidada = SenhaHelpers.ValidaSenha(usuario.Senha);
@@ -32,41 +34,12 @@ public class UsuarioRepository : IUsuarioRepository
         if (UsuariosHelpers.UsuarioExistente(usuario.Usuario))
             throw new Exception($"Já existe um usuario: {usuario.Usuario}");
 
-        try
-        {
-            string query = @"insert into USUARIOS (NOME, SOBRENOME, USUARIO, SENHA, EMAIL, DATA_CADASTRO) 
-                                       values (@Nome, @Sobrenome, @Usuario, @Senha, @Email, @DataCadastro)";
+        usuario.DataCadastro = DateTime.Now;
 
-            using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-            {
-                SqlCommand command = new SqlCommand(query, connection);
+        _context.Set<Usuarios>().Add(usuario);
+        await _context.SaveChangesAsync();
 
-                command.Parameters.AddWithValue("@Nome", usuario.Nome);
-                command.Parameters.AddWithValue("@Sobrenome", usuario.Sobrenome);
-                command.Parameters.AddWithValue("@Usuario", usuario.Usuario);
-                command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(usuario.Senha));
-                command.Parameters.AddWithValue("@Email", usuario.Email);
-                command.Parameters.AddWithValue("@DataCadastro", DateTime.Now);
-
-                await connection.OpenAsync();
-                int result = await command.ExecuteNonQueryAsync();
-
-                if (result < 0)
-                {
-                    await connection.CloseAsync();
-                    throw new Exception();
-                }
-
-                return usuario;
-            }
-        }
-        catch (Exception e)
-        {
-            SqlConnection connection = new SqlConnection();
-            connection.Close();
-
-            throw new Exception($"Não foi possivel registrar o usuario: {e.Message}");
-        }
+        return usuario;
     }
 
     public async Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle)
