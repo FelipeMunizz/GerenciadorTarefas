@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -25,21 +26,21 @@ public class UsuarioRepository : IUsuarioRepository
         _context = context;
     }
 
-    public async Task<Usuarios> RegistrarUsuario(Usuarios usuario)
+    public async Task RegistrarUsuario(Usuarios usuario)
     {
         var senhaValidada = SenhaHelpers.ValidaSenha(usuario.Senha);
         if (!senhaValidada)
             throw new Exception("A senha deve conter (Deve ter mais de 8 caracteres, 1 caractere Maiusculo, 1 caractere numerico e 1 caractere especial)");
 
-        if (UsuariosHelpers.UsuarioExistente(usuario.Usuario))
-            throw new Exception($"Já existe um usuario: {usuario.Usuario}");
+        Usuarios userExiste = _context.Usuarios.FirstOrDefault(u => u.Usuario == usuario.Usuario);
+        if (userExiste != null)
+            throw new Exception("Usuario já existe");
 
+        usuario.Senha = SenhaHelpers.CriptografarSenha(usuario.Senha);
         usuario.DataCadastro = DateTime.Now;
 
-        _context.Set<Usuarios>().Add(usuario);
+        _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync();
-
-        return usuario;
     }
 
     public async Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle)
@@ -63,142 +64,60 @@ public class UsuarioRepository : IUsuarioRepository
 
     public async Task<string> Login(LoginDTO loginDTO)
     {
-        Usuarios usuario = new Usuarios();
-        string query = "select * from USUARIOS where USUARIO = @Usuario and SENHA = @Senha";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
+        Usuarios usuario = _context.Usuarios.FirstOrDefault(x => x.Usuario == loginDTO.Usuario &&
+                                                                 x.Senha == SenhaHelpers.CriptografarSenha(loginDTO.Senha));
 
-            command.Parameters.AddWithValue("@Usuario", loginDTO.Usuario);
-            command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(loginDTO.Senha));
-
-            await connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
-
-            if (!reader.HasRows)
-            {
-                await connection.CloseAsync();
-                throw new Exception("Usuario não encontrado.");
-            }
-
-
-            if (reader.Read())
-            {
-                usuario.IdUsuario = (int)reader["ID_USUARIO"];
-                usuario.Nome = reader["NOME"].ToString();
-                usuario.Sobrenome = reader["SOBRENOME"].ToString();
-                usuario.Usuario = reader["USUARIO"].ToString();
-                usuario.Email = reader["EMAIL"].ToString();
-                usuario.DataCadastro = Convert.ToDateTime(reader["DATA_CADASTRO"]);
-            }
-        }
+        if (usuario == null)
+            throw new Exception("Usuario não encontrado.");
 
         return GerarToken(usuario);
     }
 
     public async Task RedefinirSenha(RedefinirSenhaDTO redefinirSenha)
     {
-        string novaSenha = "";
-        string query = "select ID_USUARIO from USUARIOS where EMAIL = @Email and USUARIO = @Usuario";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Usuario == redefinirSenha.Usuario && x.Email == redefinirSenha.Email);
+        if (usuario == null)
+            throw new Exception("Usuario não encontrado");
 
-            command.Parameters.AddWithValue("@Email", redefinirSenha.Email);
-            command.Parameters.AddWithValue("@Usuario", redefinirSenha.Usuario);
+        string novaSenha = SenhaHelpers.GenerateRandomPassword();
 
-            await connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+        string senhaCriptografada = SenhaHelpers.CriptografarSenha(novaSenha);
 
-            if (!reader.HasRows)
-            {
-                await connection.CloseAsync();
-                throw new Exception("Usuario não encontrado.");
-            }
+        usuario.Senha = senhaCriptografada;
+        _context.Usuarios.Update(usuario);
+        await _context.SaveChangesAsync();
 
-            novaSenha = SenhaHelpers.GenerateRandomPassword();
-            var senhaCriptografada = SenhaHelpers.CriptografarSenha(novaSenha);
+        string assunto = "Redefinição de Senha";
+        string mensagem = $"Sua nova senha é: {novaSenha}";
+        bool emailEnviado = _emailHelpers.Enviar(redefinirSenha.Email, assunto, mensagem);
 
-            bool senhaAtualizada = SenhaHelpers.AtualizarSenha(senhaCriptografada, redefinirSenha.Usuario, redefinirSenha.Email);
-
-            if (!senhaAtualizada)
-            {
-                throw new Exception("Não foi possivel gerar uma nova senha");
-            }
-
-            string assunto = "Redefinição de Senha";
-            string mensagem = $"Sua nova senha é: {novaSenha}";
-            bool emailEnviado = _emailHelpers.Enviar(redefinirSenha.Email, assunto, mensagem);
-
-            if (!emailEnviado)
-                throw new Exception("Não foi possível enviar o email com a nova senha");
-        }
+        if (!emailEnviado)
+            throw new Exception("Não foi possível enviar o email com a nova senha");
     }
 
     public async Task EnviarUsuario(string email)
     {
-        string usuario = string.Empty;
-        string query = "select top 1 usuario from usuarios where email = @Email";
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Email == email);
+        if(usuario == null)
+            throw new Exception("Usaurio não infomrado (Contate o suporte)");
 
-        SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString());
-        SqlCommand command = new SqlCommand(query, connection);
-        command.Parameters.AddWithValue("@Email", email);
-
-        await connection.OpenAsync();
-
-        var reader = await command.ExecuteReaderAsync();
-
-        if (!reader.HasRows)
-            throw new Exception("Usuario não encontrado");
-
-        if (reader.Read())
-        {
-            usuario = (string)reader["Usuario"];
-        }
-
-        if (!string.IsNullOrEmpty(usuario))
+        if (!string.IsNullOrEmpty(usuario.Usuario))
         {
             string assunto = "Esqueceu seu usuario no Task Master?";
-            string msg = $"Seu usaurio é {usuario}";
+            string msg = $"Seu usaurio é {usuario.Usuario}";
             bool sucesso = _emailHelpers.Enviar(email, assunto, msg);
             if (!sucesso)
                 throw new Exception("Não foi possivel enviar o usuario por email");
-        }
-        else
-        {
-            throw new Exception("Usaurio não infomrado (Contate o suporte)");
         }
     }
 
     public async Task<Usuarios> ObterUsuario(int idUsuario)
     {
-        Usuarios usuario = new Usuarios();
-        string query = "select * from USUARIOS where ID_USUARIO = @IdUsuario";
-        SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString());
-        SqlCommand command = new SqlCommand(query, connection);
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
 
-        command.Parameters.AddWithValue("@IdUsuario", idUsuario);
+        if(usuario == null)
+            throw new Exception("Usaurio não encontrado");
 
-        await connection.OpenAsync();
-        var reader = await command.ExecuteReaderAsync();
-
-        if (!reader.HasRows)
-        {
-            await connection.CloseAsync();
-            throw new Exception("Usuario não encontrado.");
-        }
-
-        if (reader.Read())
-        {
-            usuario.IdUsuario = (int)reader["ID_USUARIO"];
-            usuario.Nome = reader["NOME"].ToString();
-            usuario.Sobrenome = reader["SOBRENOME"].ToString();
-            usuario.Usuario = reader["USUARIO"].ToString();
-            usuario.Email = reader["EMAIL"].ToString();
-            usuario.DataCadastro = Convert.ToDateTime(reader["DATA_CADASTRO"]);
-        }
-
-        await connection.CloseAsync();
         return usuario;
     }
 
@@ -245,42 +164,22 @@ public class UsuarioRepository : IUsuarioRepository
 
         string novaSenha = SenhaHelpers.CriptografarSenha(alterarSenha.NovaSenha);
 
-        Usuarios usuario = new Usuarios();
-        string query = "select EMAIL from USUARIOS where USUARIO = @Usuario and SENHA = @Senha";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(x => x.Usuario == alterarSenha.Usuario &&
+                                                                            x.Senha == SenhaHelpers.CriptografarSenha(alterarSenha.SenhaAtual));
+        if (usuario == null) throw new Exception("Usuario não encontrado");
 
-            command.Parameters.AddWithValue("@Usuario", alterarSenha.Usuario);
-            command.Parameters.AddWithValue("@Senha", SenhaHelpers.CriptografarSenha(alterarSenha.SenhaAtual));
+        usuario.Senha = SenhaHelpers.CriptografarSenha(alterarSenha.NovaSenha);
 
-            await connection.OpenAsync();
-            var reader = await command.ExecuteReaderAsync();
+        _context.Usuarios.Update(usuario);
+        await _context.SaveChangesAsync();
 
-            if (!reader.HasRows)
-            {
-                await connection.CloseAsync();
-                throw new Exception("Usuario não encontrado.");
-            }
+        string assunto = "Senha Alterada";
+        string mensagem = $"Sua senha foi alterada {DateTime.Now.ToString("dd-MM-yyyy HH:mm")}. Se você não alterou a senha entre em contato com o suporte.";
+        bool emailEnviado = _emailHelpers.Enviar(usuario.Email, assunto, mensagem);
 
-            if (reader.Read())
-            {
-                usuario.Email = reader["EMAIL"].ToString();
-            }
+        if (!emailEnviado)
+            throw new Exception("Não foi possível enviar o email com a nova senha");
 
-            bool atualizarSenha = SenhaHelpers.AtualizarSenha(novaSenha, alterarSenha.Usuario, usuario.Email);
-            if (!atualizarSenha)
-                throw new Exception("Não foi possivel atualizar a senha");
-
-            string assunto = "Senha Alterada";
-            string mensagem = $"Sua senha foi alterada {DateTime.Now.ToString("dd-MM-yyyy HH:mm")}. Se você não alterou a senha entre em contato com o suporte.";
-            bool emailEnviado = _emailHelpers.Enviar(usuario.Email, assunto, mensagem);
-
-            if (!emailEnviado)
-                throw new Exception("Não foi possível enviar o email com a nova senha");
-
-            await connection.CloseAsync();
-        }
     }
 
     public async Task AlterarUsuario(Usuarios usuario)
@@ -298,7 +197,7 @@ public class UsuarioRepository : IUsuarioRepository
             if (!reader.HasRows)
             {
                 await connection.CloseAsync();
-               throw new Exception("Usuario não encontrado");
+                throw new Exception("Usuario não encontrado");
             }
 
             query = "update USUARIOS set NOME = @Nome, SOBRENOME = @Sobrenome, USUARIO = @Usuario, EMAIL = @Email where ID_USUARIO = @IdUsuario";
@@ -319,7 +218,7 @@ public class UsuarioRepository : IUsuarioRepository
                 throw new Exception("Não foi possivel atualizar as informações do usuario");
             }
 
-            await connection.CloseAsync();            
+            await connection.CloseAsync();
         }
     }
 
@@ -328,13 +227,13 @@ public class UsuarioRepository : IUsuarioRepository
         Usuarios usuario = await ObterUsuario(id);
         if (usuario == null)
             throw new Exception("Usuario não encontrado");
-        
+
         string query = "delete from USUARIOS where ID_USUARIO = @IdUsuario";
         using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
         {
-            SqlCommand command = new SqlCommand(query, connection);            
+            SqlCommand command = new SqlCommand(query, connection);
 
-            await connection.OpenAsync();            
+            await connection.OpenAsync();
 
             command = new SqlCommand(query, connection);
 
@@ -347,7 +246,7 @@ public class UsuarioRepository : IUsuarioRepository
             if (result < 0)
             {
                 throw new Exception("Não foi possível remover o usuário.");
-            }            
+            }
         }
     }
 

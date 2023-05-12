@@ -5,7 +5,7 @@ namespace WebApi.Repository.Interfaces;
 
 public interface IUsuarioRepository
 {
-    Task<Usuarios> RegistrarUsuario(Usuarios usuario);
+    Task RegistrarUsuario(Usuarios usuario);
     Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle);
     Task<string> Login(LoginDTO loginDTO);
     Task RedefinirSenha(RedefinirSenhaDTO redefinirSenha);

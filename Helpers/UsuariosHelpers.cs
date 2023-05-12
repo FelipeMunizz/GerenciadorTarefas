@@ -26,27 +26,4 @@ public static class UsuariosHelpers
 
         return 0;
     }
-
-    public static bool UsuarioExistente(string user)
-    {
-        string query = "select ID_USUARIO from USUARIOS where USUARIO = @Usuario";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
-
-            command.Parameters.AddWithValue("@Usuario", user);
-
-            connection.Open();
-
-            var reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                reader.Close();
-                return true;
-            }
-
-            connection.Close();
-            return false;
-        }
-    }
 }

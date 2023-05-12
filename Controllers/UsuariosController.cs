@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DTOs;
+using WebApi.Helpers;
 using WebApi.Models;
 using WebApi.Repository.Interfaces;
 
@@ -22,8 +23,8 @@ public class UsuariosController : ControllerBase
     [HttpPost("Registrar")]
     public async Task<IActionResult> Registrar([FromBody] Usuarios usuario)
     {
-        Usuarios user = await _repository.RegistrarUsuario(usuario);
-        return Ok(user);
+        await _repository.RegistrarUsuario(usuario);
+        return Ok();
     }
 
     [AllowAnonymous]
@@ -37,7 +38,7 @@ public class UsuariosController : ControllerBase
     [AllowAnonymous]
     [HttpPost("Login")]
     public async Task<string> Login([FromBody] LoginDTO loginDTO)
-    {
+    {        
         return await _repository.Login(loginDTO); 
     }
 

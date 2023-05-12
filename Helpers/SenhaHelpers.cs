@@ -63,31 +63,5 @@ public static class SenhaHelpers
             }
             return builder.ToString();
         }
-    }
-
-    public static bool AtualizarSenha(string senha, string usuario, string email)
-    {
-        var query = "update usuarios set SENHA = @Senha where USUARIO = @Usuario and EMAIL = @Email";
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            SqlCommand command = new SqlCommand(query, connection);
-
-            command.Parameters.AddWithValue("@Email", email);
-            command.Parameters.AddWithValue("@Usuario", usuario);
-            command.Parameters.AddWithValue("@Senha", senha);
-
-            if (connection.State != System.Data.ConnectionState.Open)
-                connection.Open();
-            
-            int result = command.ExecuteNonQuery();
-
-            if (result < 0)
-            {
-                connection.Close();
-                return false;
-            }
-
-            return true;
-        }
-    }
+    }    
 }
