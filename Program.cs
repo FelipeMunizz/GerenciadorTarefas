@@ -82,6 +82,7 @@ builder.Services.AddAuthentication(
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
 builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<ITarefasRepository, TarefasRepository>();
 
 var app = builder.Build();
 
