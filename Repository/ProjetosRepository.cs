@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Data.SqlClient;
 using WebApi.Data;
 using WebApi.Helpers;
@@ -10,48 +11,20 @@ namespace WebApi.Repository;
 
 public class ProjetosRepository : IProjetosRepository
 {
+    private readonly AppDbContext _context;
     private readonly IUsuarioRepository _usuario;
     private readonly IEmailHelpers _email;
 
-    public ProjetosRepository(IUsuarioRepository usuario, IEmailHelpers email)
+    public ProjetosRepository(IUsuarioRepository usuario, IEmailHelpers email, AppDbContext context)
     {
         _usuario = usuario;
         _email = email;
+        _context = context;
     }
 
     public async Task<List<Projetos>> ListarPorUsuario(int idUsuario)
     {
-        string query = @"
-            select * from projetos where id_usuario = @IdUsuario
-            ";
-        List<Projetos> projetos = new List<Projetos>();
-
-        using (SqlConnection connection = new SqlConnection(AppDbContext.GetConnectionString()))
-        {
-            await connection.OpenAsync();
-
-            SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@IdUsuario", idUsuario);
-
-            var reader = await command.ExecuteReaderAsync();
-
-            while (reader.Read())
-            {
-                Projetos projeto = new Projetos
-                {
-                    IdProjeto = (int)reader["ID_PROJETO"],
-                    NomeProjeto = (string)reader["NOME_PROJETO"],
-                    Descricao = (string)reader["DESCRICAO"],
-                    DataInicio = (DateTime)reader["DATA_INICIO"],
-                    IdUsuario = (int)reader["ID_USUARIO"]
-                };
-                projetos.Add(projeto);
-            }
-            reader.Close();
-            await connection.CloseAsync();
-
-            return projetos;
-        }
+        return await _context.Projetos.Where(x => x.IdUsuario == idUsuario).ToListAsync();        
     }
 
     public async Task<Projetos> ObterProjeto(int idProjeto, int idUsuario)
