@@ -4,8 +4,7 @@ namespace WebApi.Models;
 
 public class Tarefas 
 {
-    [Key]
-    public int IdTarefa { get; set; }
+    public int TarefasId { get; set; }
     public string? Titulo { get; set; }
     public string? Descricao { get; set; }
     public DateTime DataCriacao { get; set; }

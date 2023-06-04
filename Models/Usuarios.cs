@@ -4,8 +4,7 @@ namespace WebApi.Models;
 
 public class Usuarios
 {
-    [Key]
-    public int IdUsuario { get; set; }
+    public int UsuariosId { get; set; }
     public string? Nome { get; set; }
     public string? Sobrenome { get; set; }
     public string? Usuario { get; set; }

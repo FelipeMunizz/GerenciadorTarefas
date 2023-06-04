@@ -112,7 +112,7 @@ public class UsuarioRepository : IUsuarioRepository
 
     public async Task<Usuarios> ObterUsuario(int idUsuario)
     {
-        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == idUsuario);
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.UsuariosId == idUsuario);
 
         if(usuario == null)
             throw new Exception("Usaurio não encontrado");
@@ -161,7 +161,7 @@ public class UsuarioRepository : IUsuarioRepository
 
     public async Task AlterarUsuario(Usuarios user)
     {
-        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.IdUsuario == user.IdUsuario);
+        Usuarios usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.UsuariosId == user.UsuariosId);
         if (usuario == null) throw new Exception("Usuario não encontrado");
 
         usuario.Nome = user.Nome;
@@ -188,7 +188,7 @@ public class UsuarioRepository : IUsuarioRepository
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.UniqueName, usuario.Email),
-            new Claim("idUsuario", usuario.IdUsuario.ToString()),
+            new Claim("idUsuario", usuario.UsuariosId.ToString()),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

@@ -34,7 +34,7 @@ public class TarefasRepository : ITarefasRepository
 
     public async Task<Tarefas> ObterTarefa(int idTarefa)
     {
-        return await _context.Tarefas.SingleOrDefaultAsync(x => x.IdTarefa == idTarefa);
+        return await _context.Tarefas.SingleOrDefaultAsync(x => x.TarefasId == idTarefa);
     }
 
     public async Task Update(Tarefas tarefas)

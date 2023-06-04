@@ -12,8 +12,8 @@ using WebApi.Data;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230511224947_Inicial")]
-    partial class Inicial
+    [Migration("20230604023152_Alteracoes")]
+    partial class Alteracoes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,38 +27,35 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("WebApi.Models.Anexos", b =>
                 {
-                    b.Property<int>("IdAnexo")
+                    b.Property<int>("AnexosId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdAnexo"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnexosId"));
 
                     b.Property<string>("Dados")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdTarefa")
-                        .HasColumnType("int");
-
                     b.Property<string>("NomeAnexo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TarefasIdTarefa")
+                    b.Property<int>("TarefasId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdAnexo");
+                    b.HasKey("AnexosId");
 
-                    b.HasIndex("TarefasIdTarefa");
+                    b.HasIndex("TarefasId");
 
                     b.ToTable("Anexos");
                 });
 
             modelBuilder.Entity("WebApi.Models.Projetos", b =>
                 {
-                    b.Property<int>("IdProjeto")
+                    b.Property<int>("ProjetosId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdProjeto"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjetosId"));
 
                     b.Property<DateTime>("DataFim")
                         .HasColumnType("datetime2");
@@ -69,45 +66,37 @@ namespace WebApi.Migrations
                     b.Property<string>("Descricao")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuario")
-                        .HasColumnType("int");
-
                     b.Property<string>("NomeProjeto")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UsuariosIdUsuario")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdProjeto");
-
-                    b.HasIndex("UsuariosIdUsuario");
+                    b.HasKey("ProjetosId");
 
                     b.ToTable("Projetos");
                 });
 
             modelBuilder.Entity("WebApi.Models.Status", b =>
                 {
-                    b.Property<int>("IdStatus")
+                    b.Property<int>("StatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdStatus"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusId"));
 
                     b.Property<string>("NomeStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdStatus");
+                    b.HasKey("StatusId");
 
                     b.ToTable("Status");
                 });
 
             modelBuilder.Entity("WebApi.Models.Tarefas", b =>
                 {
-                    b.Property<int>("IdTarefa")
+                    b.Property<int>("TarefasId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTarefa"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TarefasId"));
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
@@ -118,7 +107,7 @@ namespace WebApi.Migrations
                     b.Property<int>("IdProjeto")
                         .HasColumnType("int");
 
-                    b.Property<int>("PROJETOIdProjeto")
+                    b.Property<int>("ProjetosId")
                         .HasColumnType("int");
 
                     b.Property<string>("StatusTarefa")
@@ -127,49 +116,46 @@ namespace WebApi.Migrations
                     b.Property<string>("Titulo")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdTarefa");
+                    b.HasKey("TarefasId");
 
-                    b.HasIndex("PROJETOIdProjeto");
+                    b.HasIndex("ProjetosId");
 
                     b.ToTable("Tarefas");
                 });
 
             modelBuilder.Entity("WebApi.Models.TarefasStatus", b =>
                 {
-                    b.Property<int>("IdTarefa")
+                    b.Property<int>("TarefasStatusId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdTarefa"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TarefasStatusId"));
 
                     b.Property<DateTime>("DataAlteracao")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdStatus")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StatusIdStatus")
+                    b.Property<int?>("TarefasId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TarefasIdTarefa")
-                        .HasColumnType("int");
+                    b.HasKey("TarefasStatusId");
 
-                    b.HasKey("IdTarefa");
+                    b.HasIndex("StatusId");
 
-                    b.HasIndex("StatusIdStatus");
-
-                    b.HasIndex("TarefasIdTarefa");
+                    b.HasIndex("TarefasId");
 
                     b.ToTable("TarefasStatus");
                 });
 
             modelBuilder.Entity("WebApi.Models.Usuarios", b =>
                 {
-                    b.Property<int>("IdUsuario")
+                    b.Property<int>("UsuariosId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUsuario"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UsuariosId"));
 
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("datetime2");
@@ -189,39 +175,36 @@ namespace WebApi.Migrations
                     b.Property<string>("Usuario")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("IdUsuario");
+                    b.HasKey("UsuariosId");
 
                     b.ToTable("Usuarios");
                 });
 
             modelBuilder.Entity("WebApi.Models.UsuariosProjeto", b =>
                 {
-                    b.Property<int>("IdUsuarioProjeto")
+                    b.Property<int>("UsuariosProjetoId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdUsuarioProjeto"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UsuariosProjetoId"));
 
                     b.Property<int>("IdProjeto")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuario")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjetoIdProjeto")
+                    b.Property<int>("ProjetosId")
                         .HasColumnType("int");
 
                     b.Property<bool>("Responsavel")
                         .HasColumnType("bit");
 
-                    b.Property<int>("UsuarioIdUsuario")
+                    b.Property<int>("UsuariosId")
                         .HasColumnType("int");
 
-                    b.HasKey("IdUsuarioProjeto");
+                    b.HasKey("UsuariosProjetoId");
 
-                    b.HasIndex("ProjetoIdProjeto");
+                    b.HasIndex("ProjetosId");
 
-                    b.HasIndex("UsuarioIdUsuario");
+                    b.HasIndex("UsuariosId");
 
                     b.ToTable("UsuariosProjetos");
                 });
@@ -230,27 +213,18 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("WebApi.Models.Tarefas", "Tarefas")
                         .WithMany("Anexos")
-                        .HasForeignKey("TarefasIdTarefa")
+                        .HasForeignKey("TarefasId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tarefas");
                 });
 
-            modelBuilder.Entity("WebApi.Models.Projetos", b =>
-                {
-                    b.HasOne("WebApi.Models.Usuarios", "Usuarios")
-                        .WithMany()
-                        .HasForeignKey("UsuariosIdUsuario");
-
-                    b.Navigation("Usuarios");
-                });
-
             modelBuilder.Entity("WebApi.Models.Tarefas", b =>
                 {
                     b.HasOne("WebApi.Models.Projetos", "PROJETO")
                         .WithMany()
-                        .HasForeignKey("PROJETOIdProjeto")
+                        .HasForeignKey("ProjetosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -261,15 +235,13 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("WebApi.Models.Status", "Status")
                         .WithMany()
-                        .HasForeignKey("StatusIdStatus")
+                        .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApi.Models.Tarefas", "Tarefas")
                         .WithMany()
-                        .HasForeignKey("TarefasIdTarefa")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TarefasId");
 
                     b.Navigation("Status");
 
@@ -279,20 +251,25 @@ namespace WebApi.Migrations
             modelBuilder.Entity("WebApi.Models.UsuariosProjeto", b =>
                 {
                     b.HasOne("WebApi.Models.Projetos", "Projeto")
-                        .WithMany()
-                        .HasForeignKey("ProjetoIdProjeto")
+                        .WithMany("UsuariosProjetos")
+                        .HasForeignKey("ProjetosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApi.Models.Usuarios", "Usuario")
                         .WithMany()
-                        .HasForeignKey("UsuarioIdUsuario")
+                        .HasForeignKey("UsuariosId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Projeto");
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("WebApi.Models.Projetos", b =>
+                {
+                    b.Navigation("UsuariosProjetos");
                 });
 
             modelBuilder.Entity("WebApi.Models.Tarefas", b =>

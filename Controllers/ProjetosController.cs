@@ -23,8 +23,7 @@ public class ProjetosController : ControllerBase
     [Produces("application/json")]
     public async Task<ActionResult<List<Projetos>>> ListarProjetos()
     {
-        int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
-        List<Projetos> projetos = await _repository.ListarPorUsuario(idUsuario);
+        List<Projetos> projetos = await _repository.ListarPorUsuario();
 
         return Ok(projetos);
     }
@@ -33,8 +32,7 @@ public class ProjetosController : ControllerBase
     [Produces("application/json")]
     public async Task<ActionResult<Projetos>> ObterProjeto(int idProjeto)
     {
-        int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
-        Projetos projeto = await _repository.ObterProjeto(idProjeto, idUsuario);
+        Projetos projeto = await _repository.ObterProjeto(idProjeto);
 
         return Ok(projeto);
     }
@@ -54,9 +52,7 @@ public class ProjetosController : ControllerBase
     [Produces("application/json")]
     public async Task<IActionResult> EditarProjeto([FromBody] Projetos projeto)
     {
-        int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
-
-        await _repository.Update(projeto, idUsuario);
+        await _repository.Update(projeto);
 
         return Ok(projeto);
     }
@@ -66,7 +62,7 @@ public class ProjetosController : ControllerBase
     public async Task<IActionResult> FinalizarProjeto(int idProjeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
-        Projetos projeto = await _repository.FinalizarProjeto(idProjeto, idUsuario);
+        Projetos projeto = await _repository.FinalizarProjeto(idProjeto);
 
         return Ok(projeto);
     }
@@ -76,7 +72,7 @@ public class ProjetosController : ControllerBase
     public async Task<IActionResult> DeletarProjeto(int idProjeto)
     {
         int idUsuario = UsuariosHelpers.ObterIdUsuario(Request);
-        await _repository.Delete(idProjeto, idUsuario);
+        await _repository.Delete(idProjeto);
 
         return Ok("Projeto deletado com sucesso");
     }

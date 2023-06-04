@@ -15,20 +15,20 @@ namespace WebApi.Migrations
                 name: "Status",
                 columns: table => new
                 {
-                    IdStatus = table.Column<int>(type: "int", nullable: false)
+                    StatusId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NomeStatus = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Status", x => x.IdStatus);
+                    table.PrimaryKey("PK_Status", x => x.StatusId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
-                    IdUsuario = table.Column<int>(type: "int", nullable: false)
+                    UsuariosId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Sobrenome = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -39,53 +39,53 @@ namespace WebApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Usuarios", x => x.IdUsuario);
+                    table.PrimaryKey("PK_Usuarios", x => x.UsuariosId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Projetos",
                 columns: table => new
                 {
-                    IdProjeto = table.Column<int>(type: "int", nullable: false)
+                    ProjetosId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     NomeProjeto = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DataInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DataFim = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IdUsuario = table.Column<int>(type: "int", nullable: false),
-                    UsuariosIdUsuario = table.Column<int>(type: "int", nullable: true)
+                    UsuariosId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projetos", x => x.IdProjeto);
+                    table.PrimaryKey("PK_Projetos", x => x.ProjetosId);
                     table.ForeignKey(
-                        name: "FK_Projetos_Usuarios_UsuariosIdUsuario",
-                        column: x => x.UsuariosIdUsuario,
+                        name: "FK_Projetos_Usuarios_UsuariosId",
+                        column: x => x.UsuariosId,
                         principalTable: "Usuarios",
-                        principalColumn: "IdUsuario");
+                        principalColumn: "UsuariosId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Tarefas",
                 columns: table => new
                 {
-                    IdTarefa = table.Column<int>(type: "int", nullable: false)
+                    TarefasId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Titulo = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StatusTarefa = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IdProjeto = table.Column<int>(type: "int", nullable: false),
-                    PROJETOIdProjeto = table.Column<int>(type: "int", nullable: false)
+                    ProjetosId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tarefas", x => x.IdTarefa);
+                    table.PrimaryKey("PK_Tarefas", x => x.TarefasId);
                     table.ForeignKey(
-                        name: "FK_Tarefas_Projetos_PROJETOIdProjeto",
-                        column: x => x.PROJETOIdProjeto,
+                        name: "FK_Tarefas_Projetos_ProjetosId",
+                        column: x => x.ProjetosId,
                         principalTable: "Projetos",
-                        principalColumn: "IdProjeto",
+                        principalColumn: "ProjetosId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -93,50 +93,48 @@ namespace WebApi.Migrations
                 name: "UsuariosProjetos",
                 columns: table => new
                 {
-                    IdUsuarioProjeto = table.Column<int>(type: "int", nullable: false)
+                    UsuariosProjetoId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IdUsuario = table.Column<int>(type: "int", nullable: false),
+                    UsuariosId = table.Column<int>(type: "int", nullable: false),
                     IdProjeto = table.Column<int>(type: "int", nullable: false),
                     Responsavel = table.Column<bool>(type: "bit", nullable: false),
-                    UsuarioIdUsuario = table.Column<int>(type: "int", nullable: false),
-                    ProjetoIdProjeto = table.Column<int>(type: "int", nullable: false)
+                    ProjetosId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsuariosProjetos", x => x.IdUsuarioProjeto);
+                    table.PrimaryKey("PK_UsuariosProjetos", x => x.UsuariosProjetoId);
                     table.ForeignKey(
-                        name: "FK_UsuariosProjetos_Projetos_ProjetoIdProjeto",
-                        column: x => x.ProjetoIdProjeto,
+                        name: "FK_UsuariosProjetos_Projetos_ProjetosId",
+                        column: x => x.ProjetosId,
                         principalTable: "Projetos",
-                        principalColumn: "IdProjeto",
+                        principalColumn: "ProjetosId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UsuariosProjetos_Usuarios_UsuarioIdUsuario",
-                        column: x => x.UsuarioIdUsuario,
+                        name: "FK_UsuariosProjetos_Usuarios_UsuariosId",
+                        column: x => x.UsuariosId,
                         principalTable: "Usuarios",
-                        principalColumn: "IdUsuario",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "UsuariosId",
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Anexos",
                 columns: table => new
                 {
-                    IdAnexo = table.Column<int>(type: "int", nullable: false)
+                    AnexosId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IdTarefa = table.Column<int>(type: "int", nullable: false),
+                    TarefasId = table.Column<int>(type: "int", nullable: false),
                     NomeAnexo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Dados = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TarefasIdTarefa = table.Column<int>(type: "int", nullable: false)
+                    Dados = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Anexos", x => x.IdAnexo);
+                    table.PrimaryKey("PK_Anexos", x => x.AnexosId);
                     table.ForeignKey(
-                        name: "FK_Anexos_Tarefas_TarefasIdTarefa",
-                        column: x => x.TarefasIdTarefa,
+                        name: "FK_Anexos_Tarefas_TarefasId",
+                        column: x => x.TarefasId,
                         principalTable: "Tarefas",
-                        principalColumn: "IdTarefa",
+                        principalColumn: "TarefasId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -144,64 +142,63 @@ namespace WebApi.Migrations
                 name: "TarefasStatus",
                 columns: table => new
                 {
-                    IdTarefa = table.Column<int>(type: "int", nullable: false)
+                    TarefasStatusId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    IdStatus = table.Column<int>(type: "int", nullable: false),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
                     DataAlteracao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TarefasIdTarefa = table.Column<int>(type: "int", nullable: false),
-                    StatusIdStatus = table.Column<int>(type: "int", nullable: false)
+                    TarefasId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TarefasStatus", x => x.IdTarefa);
+                    table.PrimaryKey("PK_TarefasStatus", x => x.TarefasStatusId);
                     table.ForeignKey(
-                        name: "FK_TarefasStatus_Status_StatusIdStatus",
-                        column: x => x.StatusIdStatus,
+                        name: "FK_TarefasStatus_Status_StatusId",
+                        column: x => x.StatusId,
                         principalTable: "Status",
-                        principalColumn: "IdStatus",
+                        principalColumn: "StatusId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TarefasStatus_Tarefas_TarefasIdTarefa",
-                        column: x => x.TarefasIdTarefa,
+                        name: "FK_TarefasStatus_Tarefas_TarefasId",
+                        column: x => x.TarefasId,
                         principalTable: "Tarefas",
-                        principalColumn: "IdTarefa",
+                        principalColumn: "TarefasId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Anexos_TarefasIdTarefa",
+                name: "IX_Anexos_TarefasId",
                 table: "Anexos",
-                column: "TarefasIdTarefa");
+                column: "TarefasId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projetos_UsuariosIdUsuario",
+                name: "IX_Projetos_UsuariosId",
                 table: "Projetos",
-                column: "UsuariosIdUsuario");
+                column: "UsuariosId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tarefas_PROJETOIdProjeto",
+                name: "IX_Tarefas_ProjetosId",
                 table: "Tarefas",
-                column: "PROJETOIdProjeto");
+                column: "ProjetosId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TarefasStatus_StatusIdStatus",
+                name: "IX_TarefasStatus_StatusId",
                 table: "TarefasStatus",
-                column: "StatusIdStatus");
+                column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TarefasStatus_TarefasIdTarefa",
+                name: "IX_TarefasStatus_TarefasId",
                 table: "TarefasStatus",
-                column: "TarefasIdTarefa");
+                column: "TarefasId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosProjetos_ProjetoIdProjeto",
+                name: "IX_UsuariosProjetos_ProjetosId",
                 table: "UsuariosProjetos",
-                column: "ProjetoIdProjeto");
+                column: "ProjetosId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UsuariosProjetos_UsuarioIdUsuario",
+                name: "IX_UsuariosProjetos_UsuariosId",
                 table: "UsuariosProjetos",
-                column: "UsuarioIdUsuario");
+                column: "UsuariosId");
         }
 
         /// <inheritdoc />

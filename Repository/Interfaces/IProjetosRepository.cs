@@ -4,12 +4,12 @@ namespace WebApi.Repository.Interfaces;
 
 public interface IProjetosRepository
 {
-    Task<List<Projetos>> ListarPorUsuario(int idUsuario);
-    Task<Projetos> ObterProjeto(int idProjeto, int idUsuario);
-    Task<Projetos> FinalizarProjeto(int idProjeto, int idUsuario);
+    Task<List<Projetos>> ListarPorUsuario();
+    Task<Projetos> ObterProjeto(int idProjeto);
+    Task<Projetos> FinalizarProjeto(int idProjeto);
     Task Add(Projetos projeto, int idUsuario);
-    Task Update(Projetos projeto, int idUsuario);
-    Task Delete(int idProjeto, int idUsuario);
+    Task Update(Projetos projeto);
+    Task Delete(int idProjeto);
     Task<object> ListarUsuariosProjeto(int idProjeto);
     Task<UsuariosProjeto> ObterUsuarioProjeto(int idUsuarioProjeto);
     Task AdicionarUsuarioProjeto(int idProjeto, string user, int idUsuarioResponsavel = 0, bool responsavel = false);

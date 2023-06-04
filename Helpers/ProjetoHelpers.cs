@@ -6,7 +6,7 @@ namespace WebApi.Helpers;
 
 public static class ProjetoHelpers
 {
-    public static Projetos ProjetoFinalizado(int idProjeto, int IdUsario)
+    public static Projetos ProjetoFinalizado(int idProjeto)
     {
         var query = @"
           select * from projetos where id_usuario = @IdUsuario and id_projeto = @IdProjeto
@@ -19,7 +19,6 @@ public static class ProjetoHelpers
             connection.Open();
             SqlCommand command = new SqlCommand(query, connection);
 
-            command.Parameters.AddWithValue("@IdUsuario", IdUsario);
             command.Parameters.AddWithValue("@IdProjeto", idProjeto);
             var reader = command.ExecuteReader();
 
@@ -27,12 +26,11 @@ public static class ProjetoHelpers
                 return projeto;
             if (reader.Read())
             {
-                projeto.IdProjeto = (int)reader["ID_PROJETO"];
+                projeto.ProjetosId = (int)reader["ID_PROJETO"];
                 projeto.NomeProjeto = (string)reader["NOME_PROJETO"];
                 projeto.Descricao = (string)reader["DESCRICAO"];
                 projeto.DataInicio = (DateTime)reader["DATA_INICIO"];
                 projeto.DataFim = (DateTime)reader["DATA_FIM"];
-                projeto.IdUsuario = (int)reader["ID_USUARIO"];
             }
 
             reader.Close();

@@ -4,12 +4,10 @@ namespace WebApi.Models;
 
 public class Projetos 
 {
-    [Key]
-    public int IdProjeto {  get; set; }
+    public int ProjetosId {  get; set; }
     public string? NomeProjeto { get; set; }
     public string? Descricao { get; set; }
     public DateTime DataInicio { get; set; }
     public DateTime DataFim { get; set; }
-    public int IdUsuario { get; set; }
-    public virtual Usuarios? Usuarios { get; set; }
+    public List<UsuariosProjeto> UsuariosProjetos { get; set; } = new List<UsuariosProjeto>();
 }
