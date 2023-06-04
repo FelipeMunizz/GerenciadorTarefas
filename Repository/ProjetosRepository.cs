@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Data;
-using System.Data.SqlClient;
 using WebApi.Data;
-using WebApi.Helpers;
 using WebApi.Helpers.Interfaces;
 using WebApi.Models;
 using WebApi.Repository.Interfaces;
