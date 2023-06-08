@@ -26,6 +26,7 @@ public class AppDbContext : DbContext
     {
         string not = "Data Source=DESKTOP-V672319\\SQLEXPRESS;Initial Catalog=GerenciadorTarefas;Integrated Security=True;Pooling=False;Encrypt=False;TrustServerCertificate=False;";
         string pc = "Data Source=DESKTOP-10DDISU;Initial Catalog=GerenciadorTarefas;Integrated Security=True;Pooling=False;Encrypt=False;TrustServerCertificate=False;";
-        return pc;
+        string produce = "workstation id=taskmaster.mssql.somee.com;packet size=4096;user id=TaskMaster_SQLLogin_1;pwd=fjte8c7tuh;data source=taskmaster.mssql.somee.com;persist security info=False;initial catalog=taskmaster;Pooling=False;Encrypt=False;TrustServerCertificate=False;";
+        return produce;
     }
 }

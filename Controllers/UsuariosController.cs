@@ -28,14 +28,6 @@ public class UsuariosController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("RegistrarGoogle")]
-    public async Task<IActionResult> RegistrarGoogle([FromBody] UsuarioGoogleDTO usuarioGoogle)
-    {
-        Usuarios usuario = await _repository.RegistrarUsuarioGoogle(usuarioGoogle);
-        return Ok(usuario);
-    }
-
-    [AllowAnonymous]
     [HttpPost("Login")]
     public async Task<string> Login([FromBody] LoginDTO loginDTO)
     {        

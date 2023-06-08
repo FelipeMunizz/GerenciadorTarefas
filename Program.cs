@@ -72,12 +72,7 @@ builder.Services.AddAuthentication(
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:key"]))
         };
-    })
-.AddGoogle(options =>
-{
-    options.ClientId = "137107799899-1qk723j0sikc03hf95hh6aluedkghiqa.apps.googleusercontent.com";
-    options.ClientSecret = "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";
-});
+    });
 
 builder.Services.AddScoped<IEmailHelpers, EmailHelpers>();
 builder.Services.AddScoped<IProjetosRepository, ProjetosRepository>();

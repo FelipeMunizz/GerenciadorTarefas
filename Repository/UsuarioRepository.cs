@@ -41,26 +41,7 @@ public class UsuarioRepository : IUsuarioRepository
         _context.Usuarios.Add(usuario);
         await _context.SaveChangesAsync();
     }
-
-    public async Task<Usuarios> RegistrarUsuarioGoogle(UsuarioGoogleDTO usuarioGoogle)
-    {
-        Usuarios usuario = await ObterUsuarioByUser(usuarioGoogle.Usuario);
-        if (usuario != null)
-            throw new Exception("Usuario já existente.");
-        usuario = new Usuarios
-        {
-            Nome = usuarioGoogle.Nome,
-            Sobrenome = usuarioGoogle.Sobrenome,
-            Usuario = usuarioGoogle.Usuario,
-            Email = usuarioGoogle.Email,
-            Senha = SenhaHelpers.GenerateRandomPassword()
-        };
-
-        await RegistrarUsuario(usuario);
-
-        return usuario;
-    }
-
+    
     public async Task<string> Login(LoginDTO loginDTO)
     {
         Usuarios usuario = _context.Usuarios.FirstOrDefault(x => x.Usuario == loginDTO.Usuario &&
