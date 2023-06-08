@@ -79,7 +79,7 @@ public class ProjetosController : ControllerBase
 
     [HttpGet("ListarUsuariosProjeto/{idProjeto:int}")]
     [Produces("application/json")]
-    public async Task<object> ListarUsuariosProjeto(int idProjeto)
+    public async Task<ActionResult<List<UsuariosProjeto>>> ListarUsuariosProjeto(int idProjeto)
     {
         return await _repository.ListarUsuariosProjeto(idProjeto);
     }
